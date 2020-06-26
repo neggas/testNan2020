@@ -7,7 +7,6 @@ window.onload = () => {
 
         socket.emit('nouveau_message', msg);
         msgArea.value = '';
-
         socket.on("message", (message) => {
             let date = Date();
             let heure = date.substr(16, 5);
@@ -25,6 +24,7 @@ window.onload = () => {
             </div>`
 
             msgzonne.innerHTML += received;
+            msgzonne.scrollTop = msgzonne.scrollHeight;
 
         })
 

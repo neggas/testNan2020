@@ -19,13 +19,13 @@ app.use(session({
 }))
 app.use(flash())
 
-app.get('/login', (req, res, next) => {
+app.get('/', (req, res, next) => {
     res.render('login');
 })
 
 
 
-app.post('/login', (req, res) => {
+app.post('/', (req, res) => {
     const pseudo = req.body.pseudo;
 
     if (pseudo !== '') {
@@ -45,10 +45,8 @@ app.get('/chat', (req, res, next) => {
 
 io.on('connection', (socket) => {
 
-
     socket.on('nouveau_message', (message) => {
         const date = Date();
-        console.log(date);
         socket.emit('message', message)
     })
 })
