@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const flash = require('connect-flash');
+const session = require('express-session')
 const app = express();
 
 const http = require("http").createServer(app);
@@ -9,43 +10,46 @@ const contactes = require("./models/db");
 
 app.set('view engine', 'ejs'); //choix du moteur de template
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.session({ cookie: { maxAge: 60000 } }));
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+}))
 app.use(flash())
 
 app.get('/login', (req, res, next) => {
-
-
-    if (req.flash("erreurLogin")) {
-        console.log(req.flash('erreurLogin').message);
-    }
     res.render('login');
 })
+
+
 
 app.post('/login', (req, res) => {
     const pseudo = req.body.pseudo;
 
-    if (pseudo === '') {
-        req.flash("erreurLogin", "Vous n'etes pas membre du chat")
-        res.redirect('/login');
+    if (pseudo !== '') {
+        res.redirect('/chat');
     } else {
 
-        res.redirect('chat');
+        req.flash("erreur", "Vous n'etes pas membre du chat");
+        res.render('login');
     }
 })
 
 app.get('/chat', (req, res, next) => {
+
     res.render('index', { contactes: contactes });
 });
 
 
-console.log(contactes);
-
 io.on('connection', (socket) => {
-    console.log('a user connected');
 
-    socket.on('chat-message', (message) => {
-        console.log("message")
+
+    socket.on('nouveau_message', (message) => {
+        const date = Date();
+        console.log(date);
+        socket.emit('message', message)
     })
 })
 const PORT = process.env.PORT || 3000;
